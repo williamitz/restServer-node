@@ -14,7 +14,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 //  configurando la cadena de conexion
 // ==========================
 
-var urlDB = 'mongodb+srv://leonidas:m4OibyR58Vv5sykH@cluster0-syfyl.mongodb.net/coffe_db';
+var urlDB = process.env.MONGO_URI;
 
 if (process.env.NODE_ENV === 'dev') {
     urlDB = 'mongodb://localhost:27017/coffe_db';
