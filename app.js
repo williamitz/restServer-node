@@ -16,9 +16,7 @@ mongoose.connect(process.env.URLDB, { useCreateIndex: true, useNewUrlParser: tru
     console.log('Conexion con éxito');
 });
 
-
-app.use(require('./server/routes/user'));
-
+app.use(require('./server/routes/index'))
 
 app.listen(process.env.PORT, () => {
     console.log('Escuchando el puerto ', process.env.PORT);

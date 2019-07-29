@@ -2,11 +2,19 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 const Usuario = require('../models/user');
+const { validateToken } = require('../middlewares/authentication');
+const { verifyRol } = require('../middlewares/verification');
 const app = express();
 
-app.get('/usuarios', (req, res) => {
+/**
+ * Los midleweare son funciones que se ejecutan cuando se quiera usar un api
+ * reciben 3 parámetros req, res, next -> este ultimo se llama para que continue el script del api
+ */
+
+app.get('/usuarios', validateToken, (req, res) => {
     const data = req.query;
-    const skip = (data.page - 1) * 5
+    const skip = (data.page - 1) * 5;
+
     let User = Usuario;
     //filter      //projection         //options paginate    
     User.find({ statusRegister: true }, ['name', 'email', 'registrationDate'], { skip, limit: 5 })
@@ -26,10 +34,11 @@ app.get('/usuarios', (req, res) => {
             });
 
         });
-
 });
 
-app.post('/usuario/add', (req, res) => { //cuando se envía a travez de body
+app.post('/usuario/add', [validateToken, verifyRol], (req, res) => { //cuando se envía a travez de body
+
+    // Una vez validado el token los datos de usuario los tenemos en req.usuario
 
     const data = req.body;
 
@@ -45,15 +54,17 @@ app.post('/usuario/add', (req, res) => { //cuando se envía a travez de body
                 error: err
             });
         }
-        res.json(document);
+        res.json({
+            ok: true,
+            usuario: document
+        });
     });
 
 
 });
 
-app.put('/usuario/update', (req, res) => {
+app.put('/usuario/update', [validateToken, verifyRol], (req, res) => {
     const data = req.body; //  _.pluck(req.body, ['name','email','role']); el pluck se usa para extraer los campos que se requieran
-
     let User = Usuario;
     let update = {
         name: data.nameUser,
@@ -71,10 +82,9 @@ app.put('/usuario/update', (req, res) => {
     })
 });
 
-app.delete('/usuario/delete', (req, res) => {
+app.delete('/usuario/delete', [validateToken, verifyRol], (req, res) => {
     const data = req.body;
     let User = Usuario;
-
     let update = {
         statusRegister: false,
         disposalDate: new Date()
